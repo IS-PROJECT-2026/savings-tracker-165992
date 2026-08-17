@@ -6,7 +6,7 @@ app = Flask(__name__)
 # Allow React to talk to Flask
 CORS(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///saving.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///savings.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -45,4 +45,4 @@ def add_goal():
     return jsonify({'message': 'Goal created!'}), 201
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5000)
