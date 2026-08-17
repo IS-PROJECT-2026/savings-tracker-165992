@@ -6,10 +6,12 @@ export default function App() {
   const [name, setName] = useState('');
   const [target, setTarget] = useState('');
 
-  // New state variables for editing
+  // Editing state variables
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [editTarget, setEditTarget] = useState('');
+  // NEW: State to track the current saved amount during edits
+  const [editCurrent, setEditCurrent] = useState('');
 
   const fetchGoals = async () => {
     try {
@@ -39,7 +41,6 @@ export default function App() {
     }
   };
 
-  // --- NEW: Delete Function ---
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://127.0.0.1:5000/api/goals/${id}`);
@@ -49,22 +50,24 @@ export default function App() {
     }
   };
 
-  // --- NEW: Start Editing Function ---
   const startEditing = (goal) => {
     setEditingId(goal.id);
     setEditName(goal.name);
     setEditTarget(goal.target_amount);
+    // NEW: Load the current saved amount into the form
+    setEditCurrent(goal.current_amount);
   };
 
-  // --- NEW: Save Edit Function ---
   const handleUpdate = async (id) => {
     try {
       await axios.put(`http://127.0.0.1:5000/api/goals/${id}`, {
         name: editName,
-        target_amount: editTarget
+        target_amount: editTarget,
+        // NEW: Send the updated saved amount to the backend
+        current_amount: editCurrent 
       });
-      setEditingId(null); // Exit edit mode
-      fetchGoals(); // Refresh the list
+      setEditingId(null); 
+      fetchGoals(); 
     } catch (error) {
       console.error("Error updating goal:", error);
     }
@@ -101,23 +104,39 @@ export default function App() {
           goals.map(goal => (
             <div key={goal.id} style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '10px', borderRadius: '5px' }}>
               
-              {/* Conditional Rendering: Show Edit Form OR Goal Details */}
               {editingId === goal.id ? (
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <label style={{ fontSize: '12px', color: '#666' }}>Goal Name</label>
                   <input 
                     type="text" 
                     value={editName} 
                     onChange={(e) => setEditName(e.target.value)} 
-                    style={{ padding: '8px' }}
+                    style={{ padding: '8px', marginTop: '-5px' }}
                   />
-                  <input 
-                    type="number" 
-                    value={editTarget} 
-                    onChange={(e) => setEditTarget(e.target.value)} 
-                    style={{ padding: '8px' }}
-                  />
+                  
                   <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ fontSize: '12px', color: '#666' }}>Amount Saved</label>
+                      <input 
+                        type="number" 
+                        value={editCurrent} 
+                        onChange={(e) => setEditCurrent(e.target.value)} 
+                        style={{ padding: '8px', width: '100%', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ fontSize: '12px', color: '#666' }}>Target Amount</label>
+                      <input 
+                        type="number" 
+                        value={editTarget} 
+                        onChange={(e) => setEditTarget(e.target.value)} 
+                        style={{ padding: '8px', width: '100%', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
                     <button onClick={() => handleUpdate(goal.id)} style={{ padding: '6px 12px', background: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Save</button>
                     <button onClick={() => setEditingId(null)} style={{ padding: '6px 12px', background: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>
                   </div>
