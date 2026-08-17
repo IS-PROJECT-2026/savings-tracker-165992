@@ -39,25 +39,24 @@ def add_goal():
     db.session.commit()
     return jsonify({'message': 'Goal created!'}), 201
 
-# --- NEW: Edit and Delete Route ---
 @app.route('/api/goals/<int:goal_id>', methods=['PUT', 'DELETE'])
 def manage_goal(goal_id):
     goal = Goal.query.get_or_404(goal_id)
 
-    # Handle Delete
     if request.method == 'DELETE':
         db.session.delete(goal)
         db.session.commit()
         return jsonify({'message': 'Goal deleted!'}), 200
 
-    # Handle Edit/Update
     if request.method == 'PUT':
         data = request.json
         goal.name = data.get('name', goal.name)
         goal.target_amount = float(data.get('target_amount', goal.target_amount))
+        # NEW: Now accepts updates to the current_amount
+        goal.current_amount = float(data.get('current_amount', goal.current_amount))
+        
         db.session.commit()
         return jsonify({'message': 'Goal updated!'}), 200
 
 if __name__ == '__main__':
-    # Using 0.0.0.0 to prevent WSL network issues
     app.run(debug=True, host='0.0.0.0', port=5000)
