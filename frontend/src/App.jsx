@@ -1,122 +1,82 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [goals, setGoals] = useState([]);
+  const [name, setName] = useState('');
+  const [target, setTarget] = useState('');
+
+  // Fetch goals from Flask
+  const fetchGoals = async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:5000/api/goals');
+      setGoals(response.data);
+    } catch (error) {
+      console.error("Error fetching goals:", error);
+    }
+  };
+
+  // Load goals when the app starts
+  useEffect(() => {
+    fetchGoals();
+  }, []);
+
+  // Submit a new goal
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('http://127.0.0.1:5000/api/goals', {
+        name: name,
+        target_amount: target
+      });
+      setName('');
+      setTarget('');
+      fetchGoals(); // Refresh the list
+    } catch (error) {
+      console.error("Error creating goal:", error);
+    }
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div style={{ padding: '20px', maxWidth: '500px', margin: '0 auto', fontFamily: 'sans-serif' }}>
+      <h2>Simple Savings Tracker</h2>
+      
+      {/* Form to add a goal */}
+      <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <input 
+          type="text" 
+          placeholder="Goal Name" 
+          value={name} 
+          onChange={(e) => setName(e.target.value)} 
+          required 
+          style={{ flex: 1, padding: '8px' }}
+        />
+        <input 
+          type="number" 
+          placeholder="Target" 
+          value={target} 
+          onChange={(e) => setTarget(e.target.value)} 
+          required 
+          style={{ width: '100px', padding: '8px' }}
+        />
+        <button type="submit" style={{ padding: '8px 16px' }}>Add Goal</button>
+      </form>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {/* List of active goals */}
+      <div>
+        {goals.length === 0 ? (
+          <p>No goals yet.</p>
+        ) : (
+          goals.map(goal => (
+            <div key={goal.id} style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '10px', borderRadius: '5px' }}>
+              <h3 style={{ margin: '0 0 10px 0' }}>{goal.name}</h3>
+              <p style={{ margin: 0 }}>
+                Saved: <strong>KES {goal.current_amount}</strong> / KES {goal.target_amount}
+              </p>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
 }
-
-export default App
