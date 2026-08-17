@@ -3,25 +3,21 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
 app = Flask(__name__)
-# Allow React to talk to Flask
 CORS(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///saving.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///savings.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# Single table for Savings Goals
 class Goal(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
     target_amount = db.Column(db.Float, nullable=False)
     current_amount = db.Column(db.Float, default=0.0)
 
-# Create the database
 with app.app_context():
     db.create_all()
 
-# Get all goals
 @app.route('/api/goals', methods=['GET'])
 def get_goals():
     goals = Goal.query.all()
@@ -32,7 +28,6 @@ def get_goals():
         'current_amount': g.current_amount
     } for g in goals])
 
-# Add a new goal
 @app.route('/api/goals', methods=['POST'])
 def add_goal():
     data = request.json
@@ -44,5 +39,24 @@ def add_goal():
     db.session.commit()
     return jsonify({'message': 'Goal created!'}), 201
 
+@app.route('/api/goals/<int:goal_id>', methods=['PUT', 'DELETE'])
+def manage_goal(goal_id):
+    goal = Goal.query.get_or_404(goal_id)
+
+    if request.method == 'DELETE':
+        db.session.delete(goal)
+        db.session.commit()
+        return jsonify({'message': 'Goal deleted!'}), 200
+
+    if request.method == 'PUT':
+        data = request.json
+        goal.name = data.get('name', goal.name)
+        goal.target_amount = float(data.get('target_amount', goal.target_amount))
+        # NEW: Now accepts updates to the current_amount
+        goal.current_amount = float(data.get('current_amount', goal.current_amount))
+        
+        db.session.commit()
+        return jsonify({'message': 'Goal updated!'}), 200
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True, host='0.0.0.0', port=5000)

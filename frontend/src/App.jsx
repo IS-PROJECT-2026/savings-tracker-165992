@@ -6,7 +6,13 @@ export default function App() {
   const [name, setName] = useState('');
   const [target, setTarget] = useState('');
 
-  // Fetch goals from Flask
+  // Editing state variables
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editTarget, setEditTarget] = useState('');
+  // NEW: State to track the current saved amount during edits
+  const [editCurrent, setEditCurrent] = useState('');
+
   const fetchGoals = async () => {
     try {
       const response = await axios.get('http://127.0.0.1:5000/api/goals');
@@ -16,12 +22,10 @@ export default function App() {
     }
   };
 
-  // Load goals when the app starts
   useEffect(() => {
     fetchGoals();
   }, []);
 
-  // Submit a new goal
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -31,9 +35,41 @@ export default function App() {
       });
       setName('');
       setTarget('');
-      fetchGoals(); // Refresh the list
+      fetchGoals();
     } catch (error) {
       console.error("Error creating goal:", error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://127.0.0.1:5000/api/goals/${id}`);
+      fetchGoals();
+    } catch (error) {
+      console.error("Error deleting goal:", error);
+    }
+  };
+
+  const startEditing = (goal) => {
+    setEditingId(goal.id);
+    setEditName(goal.name);
+    setEditTarget(goal.target_amount);
+    // NEW: Load the current saved amount into the form
+    setEditCurrent(goal.current_amount);
+  };
+
+  const handleUpdate = async (id) => {
+    try {
+      await axios.put(`http://127.0.0.1:5000/api/goals/${id}`, {
+        name: editName,
+        target_amount: editTarget,
+        // NEW: Send the updated saved amount to the backend
+        current_amount: editCurrent 
+      });
+      setEditingId(null); 
+      fetchGoals(); 
+    } catch (error) {
+      console.error("Error updating goal:", error);
     }
   };
 
@@ -41,7 +77,6 @@ export default function App() {
     <div style={{ padding: '20px', maxWidth: '500px', margin: '0 auto', fontFamily: 'sans-serif' }}>
       <h2>Simple Savings Tracker</h2>
       
-      {/* Form to add a goal */}
       <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         <input 
           type="text" 
@@ -62,17 +97,66 @@ export default function App() {
         <button type="submit" style={{ padding: '8px 16px' }}>Add Goal</button>
       </form>
 
-      {/* List of active goals */}
       <div>
         {goals.length === 0 ? (
           <p>No goals yet.</p>
         ) : (
           goals.map(goal => (
             <div key={goal.id} style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '10px', borderRadius: '5px' }}>
-              <h3 style={{ margin: '0 0 10px 0' }}>{goal.name}</h3>
-              <p style={{ margin: 0 }}>
-                Saved: <strong>KES {goal.current_amount}</strong> / KES {goal.target_amount}
-              </p>
+              
+              {editingId === goal.id ? (
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <label style={{ fontSize: '12px', color: '#666' }}>Goal Name</label>
+                  <input 
+                    type="text" 
+                    value={editName} 
+                    onChange={(e) => setEditName(e.target.value)} 
+                    style={{ padding: '8px', marginTop: '-5px' }}
+                  />
+                  
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ fontSize: '12px', color: '#666' }}>Amount Saved</label>
+                      <input 
+                        type="number" 
+                        value={editCurrent} 
+                        onChange={(e) => setEditCurrent(e.target.value)} 
+                        style={{ padding: '8px', width: '100%', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ fontSize: '12px', color: '#666' }}>Target Amount</label>
+                      <input 
+                        type="number" 
+                        value={editTarget} 
+                        onChange={(e) => setEditTarget(e.target.value)} 
+                        style={{ padding: '8px', width: '100%', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
+                    <button onClick={() => handleUpdate(goal.id)} style={{ padding: '6px 12px', background: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Save</button>
+                    <button onClick={() => setEditingId(null)} style={{ padding: '6px 12px', background: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>
+                  </div>
+                </div>
+
+              ) : (
+                
+                <div>
+                  <h3 style={{ margin: '0 0 10px 0' }}>{goal.name}</h3>
+                  <p style={{ margin: '0 0 15px 0' }}>
+                    Saved: <strong>KES {goal.current_amount}</strong> / KES {goal.target_amount}
+                  </p>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button onClick={() => startEditing(goal)} style={{ padding: '6px 12px', background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Edit</button>
+                    <button onClick={() => handleDelete(goal.id)} style={{ padding: '6px 12px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
+                  </div>
+                </div>
+
+              )}
+              
             </div>
           ))
         )}
