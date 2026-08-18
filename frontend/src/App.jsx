@@ -34,6 +34,11 @@ export default function App() {
   const activeGoals = goals.filter(g => g.current_amount < g.target_amount).length;
   const completedGoals = totalGoals - activeGoals;
 
+  // --- Formatter for Currency ---
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-KE').format(amount);
+  };
+
   // --- API Handlers ---
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -83,25 +88,30 @@ export default function App() {
   return (
     <div className="app-container">
       <header className="header">
-        <h1>Savings Overview</h1>
-        <p>Manage and track your financial targets</p>
+        <h1>Savings Portfolio</h1>
+        <br></br>
+        <p>Financial Target Tracking</p>
       </header>
 
       {/* --- DASHBOARD WIDGETS --- */}
       <div className="dashboard-grid">
-        <div className="stat-card">
+        <div className="stat-card card">
           <div className="stat-info">
-            <h3>Total Saved</h3>
-            <p>KES {totalSaved.toLocaleString()}</p>
+            <h3>Total Capital</h3>
+            <p>
+              {/* This span keeps the symbol small, inline, and prevents line breaks */}
+              <span className="currency-symbol">KES</span> 
+              {formatCurrency(totalSaved)}
+            </p>
           </div>
         </div>
-        <div className="stat-card">
+        <div className="stat-card card">
           <div className="stat-info">
-            <h3>Active Goals</h3>
+            <h3>Active Targets</h3>
             <p>{activeGoals}</p>
           </div>
         </div>
-        <div className="stat-card">
+        <div className="stat-card card">
           <div className="stat-info">
             <h3>Completed</h3>
             <p>{completedGoals}</p>
@@ -113,10 +123,10 @@ export default function App() {
       <div className="card">
         <form onSubmit={handleSubmit} className="form-row">
           <div className="form-group">
-            <label>Goal Name</label>
+            <label>Portfolio Goal</label>
             <input 
               type="text" 
-              placeholder="e.g., New Laptop" 
+              placeholder="e.g., Master's Fund" 
               value={name} 
               onChange={(e) => setName(e.target.value)} 
               required 
@@ -132,14 +142,16 @@ export default function App() {
               required 
             />
           </div>
-          <button type="submit" className="btn-primary">Create Goal</button>
+          <button type="submit" className="btn-primary">Initialize Goal</button>
         </form>
       </div>
 
       {/* --- GOALS LIST --- */}
       <div className="card">
         {goals.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)', margin: 0 }}>No active savings goals found.</p>
+          <p style={{ color: 'var(--text-muted)', margin: 0, textAlign: 'center', padding: '2rem 0' }}>
+            No financial targets established.
+          </p>
         ) : (
           goals.map(goal => {
             const isCompleted = goal.current_amount >= goal.target_amount;
@@ -158,12 +170,12 @@ export default function App() {
                   </div>
                   <div className="goal-actions">
                     <button onClick={() => startEditing(goal)} className="btn-outline">Edit</button>
-                    <button onClick={() => handleDelete(goal.id)} className="btn-danger">Delete</button>
+                    <button onClick={() => handleDelete(goal.id)} className="btn-danger">Remove</button>
                   </div>
                 </div>
                 
                 <p style={{ color: 'var(--text-muted)', margin: 0 }}>
-                  Saved <strong>KES {goal.current_amount.toLocaleString()}</strong> of KES {goal.target_amount.toLocaleString()}
+                  Secured <strong>KES {formatCurrency(goal.current_amount)}</strong> of KES {formatCurrency(goal.target_amount)}
                 </p>
 
                 {/* Progress Bar */}
@@ -175,11 +187,11 @@ export default function App() {
                     ></div>
                   </div>
                   <div className="progress-stats">
-                    <span>{percentage}%</span>
+                    <span><strong>{percentage}%</strong> complete</span>
                     <span>
                       {isCompleted 
-                        ? 'Goal Reached! 🎉' 
-                        : `${(goal.target_amount - goal.current_amount).toLocaleString()} KES remaining`}
+                        ? <strong style={{ color: 'var(--success)' }}>Target Achieved</strong> 
+                        : `${formatCurrency(goal.target_amount - goal.current_amount)} KES remaining`}
                     </span>
                   </div>
                 </div>
@@ -194,11 +206,11 @@ export default function App() {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h2>Edit Goal</h2>
+              <h2>Modify Target</h2>
             </div>
             
             <div className="modal-form-group">
-              <label>Goal Name</label>
+              <label>Goal Designation</label>
               <input 
                 type="text" 
                 value={editName} 
@@ -207,7 +219,7 @@ export default function App() {
             </div>
             
             <div className="modal-form-group">
-              <label>Amount Saved (KES)</label>
+              <label>Secured Capital (KES)</label>
               <input 
                 type="number" 
                 value={editCurrent} 
@@ -216,7 +228,7 @@ export default function App() {
             </div>
             
             <div className="modal-form-group">
-              <label>Target Amount (KES)</label>
+              <label>Target Valuation (KES)</label>
               <input 
                 type="number" 
                 value={editTarget} 
@@ -225,8 +237,8 @@ export default function App() {
             </div>
 
             <div className="modal-actions">
-              <button onClick={() => setEditingId(null)} className="btn-outline">Cancel</button>
-              <button onClick={handleUpdate} className="btn-primary">Save Changes</button>
+              <button onClick={() => setEditingId(null)} className="btn-outline">Discard</button>
+              <button onClick={handleUpdate} className="btn-primary">Confirm Update</button>
             </div>
           </div>
         </div>

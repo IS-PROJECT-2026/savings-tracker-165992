@@ -1,93 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap');
+
 :root {
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --success: #10b981;
-  --danger: #ef4444;
-  --danger-hover: #dc2626;
-  --bg-main: #f8fafc;
-  --bg-card: #ffffff;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
+  --primary: #818cf8;
+  --primary-hover: #6366f1;
+  --success: #34d399;
+  --danger: #fb7185;
+  --bg-main: #0f172a;
+  --bg-gradient: radial-gradient(circle at top left, #1e1b4b, #0f172a 70%);
+  --bg-card: rgba(30, 41, 59, 0.6);
+  --bg-input: rgba(15, 23, 42, 0.6);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: rgba(255, 255, 255, 0.1);
+  --font-heading: 'Playfair Display', serif;
+  /* Switched to Poppins for a cleaner, modern UI */
+  --font-body: 'Poppins', system-ui, sans-serif; 
 }
 
 body {
+  background: var(--bg-gradient);
   background-color: var(--bg-main);
+  background-attachment: fixed;
   color: var(--text-main);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   margin: 0;
   padding: 0;
+  min-height: 100vh;
 }
 
 .app-container {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 3rem 2rem;
 }
 
+/* Typography & Headers */
 .header {
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
+  text-align: center;
 }
 
 .header h1 {
-  font-size: 1.875rem;
+  font-family: var(--font-heading);
+  font-size: 3.5rem;
   font-weight: 700;
   margin: 0;
-  color: var(--text-main);
+  color: #ffffff;
+  letter-spacing: 0.02em;
 }
 
 .header p {
-  color: var(--text-muted);
+  color: var(--primary);
+  font-size: 1rem;
   margin-top: 0.5rem;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
 }
 
-/* Dashboard Grid */
+h2, h3 {
+  font-family: var(--font-heading);
+  color: #ffffff;
+}
+
+/* Glassmorphism Cards */
+.card, .stat-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.card {
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Dashboard Grid - Fixed Alignment */
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .stat-card {
-  background: var(--bg-card);
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--border);
+  padding: 1.5rem 2rem;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start; /* Forces alignment to the top/left */
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-info {
+  width: 100%;
+  text-align: left; /* Ensures all text stays strictly left-aligned */
 }
 
 .stat-info h3 {
-  font-size: 0.875rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   margin: 0 0 0.5rem 0;
 }
 
 .stat-info p {
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-size: 2.25rem;
+  font-weight: 600; /* Poppins looks better at 600 than 700 for large numbers */
   margin: 0;
   color: var(--text-main);
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  white-space: nowrap; /* Prevents KES from breaking onto a new line */
 }
 
-/* Forms and Cards */
-.card {
-  background: var(--bg-card);
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--border);
-  margin-bottom: 1.5rem;
+/* New class for the KES symbol to keep it proportional */
+.currency-symbol {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-muted);
 }
 
+/* Forms - Fixed Label Alignment */
 .form-row {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   align-items: flex-end;
 }
 
@@ -99,45 +145,76 @@ body {
 
 .form-group label {
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 400;
   margin-bottom: 0.5rem;
-  color: var(--text-main);
+  color: var(--text-muted);
+  text-align: left; /* Forces labels to align with the left edge of the input box */
+  width: 100%;
 }
 
 input {
-  padding: 0.75rem;
+  background: var(--bg-input);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  padding: 0.875rem 1rem;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 1rem;
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.3s ease;
   box-sizing: border-box;
+  width: 100%;
 }
 
-input:focus { border-color: var(--primary); }
+input:focus { 
+  border-color: var(--primary); 
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+}
 
 button {
-  padding: 0.75rem 1.5rem;
+  font-family: var(--font-body);
+  padding: 0.875rem 1.5rem;
   border: none;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: 10px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
-  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
 }
 
-.btn-primary { background: var(--primary); color: white; }
-.btn-primary:hover { background: var(--primary-hover); }
-.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
-.btn-outline:hover { background: var(--bg-main); }
-.btn-danger { background: var(--danger); color: white; }
-.btn-danger:hover { background: var(--danger-hover); }
+.btn-primary { 
+  background: var(--primary); 
+  color: #ffffff; 
+  box-shadow: 0 4px 15px rgba(129, 140, 248, 0.3);
+}
+.btn-primary:hover { 
+  background: var(--primary-hover); 
+  transform: translateY(-2px);
+}
+.btn-outline { 
+  background: transparent; 
+  border: 1px solid var(--border); 
+  color: var(--text-main); 
+}
+.btn-outline:hover { 
+  background: rgba(255, 255, 255, 0.05); 
+}
+.btn-danger { 
+  background: rgba(251, 113, 133, 0.1); 
+  color: var(--danger); 
+  border: 1px solid rgba(251, 113, 133, 0.2);
+}
+.btn-danger:hover { 
+  background: var(--danger);
+  color: white; 
+}
 
 /* Goal List */
 .goal-item {
   border-bottom: 1px solid var(--border);
-  padding-bottom: 1.5rem;
-  margin-bottom: 1.5rem;
+  padding-bottom: 2rem;
+  margin-bottom: 2rem;
 }
 
 .goal-item:last-child {
@@ -150,128 +227,151 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .goal-title-area {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
-.goal-header h3 { margin: 0; font-size: 1.25rem; }
-.goal-actions { display: flex; gap: 0.5rem; }
+.goal-header h3 { 
+  margin: 0; 
+  font-size: 1.5rem; 
+  font-weight: 600;
+}
+
+.goal-actions { 
+  display: flex; 
+  gap: 0.75rem; 
+}
 
 /* Status Badges */
 .badge {
-  padding: 0.25rem 0.75rem;
+  padding: 0.35rem 0.875rem;
   border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .badge-active {
-  background-color: #dbeafe;
-  color: #1e3a8a;
+  background-color: rgba(129, 140, 248, 0.15);
+  color: var(--primary);
+  border: 1px solid rgba(129, 140, 248, 0.3);
 }
 
 .badge-done {
-  background-color: #d1fae5;
-  color: #065f46;
+  background-color: rgba(52, 211, 153, 0.15);
+  color: var(--success);
+  border: 1px solid rgba(52, 211, 153, 0.3);
 }
 
 /* Linear Progress Bar */
 .progress-container {
-  margin-top: 1rem;
+  margin-top: 1.25rem;
 }
 
 .progress-bar-bg {
-  background-color: var(--border);
-  height: 8px;
+  background-color: rgba(0, 0, 0, 0.3);
+  height: 6px;
   border-radius: 999px;
   overflow: hidden;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--border);
 }
 
 .progress-bar-fill {
-  background-color: var(--primary);
+  background: linear-gradient(90deg, var(--primary), #a78bfa);
   height: 100%;
-  transition: width 0.3s ease;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 999px;
+  box-shadow: 0 0 10px rgba(129, 140, 248, 0.5);
 }
 
 .progress-bar-fill.completed {
-  background-color: var(--success);
+  background: linear-gradient(90deg, #10b981, var(--success));
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
 }
 
 .progress-stats {
   display: flex;
   justify-content: space-between;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--text-muted);
-  font-weight: 600;
 }
 
-/* --- MODAL STYLES --- */
+.progress-stats strong {
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(15, 23, 42, 0.4); /* Dark, semi-transparent overlay */
-  backdrop-filter: blur(5px); /* This applies the blur effect to everything behind the modal */
+  background-color: rgba(2, 6, 23, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000; /* Ensures the modal stays on top of all other elements */
+  z-index: 1000;
 }
 
 .modal-content {
-  background: var(--bg-card);
-  padding: 2rem;
-  border-radius: 12px;
+  background: rgba(30, 41, 59, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 2.5rem;
+  border-radius: 20px;
   width: 90%;
-  max-width: 400px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--border);
-  animation: modalFadeIn 0.2s ease-out;
+  max-width: 420px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes modalFadeIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .modal-header {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
 .modal-header h2 {
   margin: 0;
-  font-size: 1.25rem;
-  color: var(--text-main);
+  font-size: 1.75rem;
 }
 
 .modal-form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   display: flex;
   flex-direction: column;
 }
 
 .modal-form-group label {
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 400;
   margin-bottom: 0.5rem;
-  color: var(--text-main);
+  color: var(--text-muted);
+  text-align: left;
 }
 
 .modal-actions {
   display: flex;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 2.5rem;
 }
 
 .modal-actions button {
-  flex: 1; /* Makes the Save and Cancel buttons equal width */
+  flex: 1;
 }
