@@ -1,16 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './App.css';
 
+// --- LANDING PAGE COMPONENT ---
+const LandingPage = ({ onLaunch }) => (
+  <div className="landing-container">
+    <div className="hero-section">
+      <h1 className="hero-title">Master Your Finances.<br/>Achieve Your Goals.</h1>
+      <p className="hero-subtitle">
+        A beautifully simple, distraction-free savings tracker designed to help you organize your capital and reach your financial milestones faster.
+      </p>
+      <button onClick={onLaunch} className="btn-primary btn-large">
+        Launch Tracker
+      </button>
+    </div>
+    
+    <div className="features-grid">
+      <div className="feature-card">
+        <h3>Visual Tracking</h3>
+        <p>Watch your progress grow with intuitive, real-time progress bars and automated goal-completion badges.</p>
+      </div>
+      <div className="feature-card">
+        <h3>Clean Dashboard</h3>
+        <p>Get an instant, bird's-eye view of your total capital, active targets, and completed milestones.</p>
+      </div>
+      <div className="feature-card">
+        <h3>Frictionless</h3>
+        <p>No tedious sign-ups or onboarding required. Click launch and start optimizing your portfolio immediately.</p>
+      </div>
+    </div>
+  </div>
+);
+
+// --- MAIN TRACKER COMPONENT ---
 export default function App() {
+  // Navigation State
+  const [isAppLaunched, setIsAppLaunched] = useState(false);
+
+  // App Data State
   const [goals, setGoals] = useState([]);
   const [name, setName] = useState('');
   const [target, setTarget] = useState('');
 
-  // Editing state variables
+  // Editing State
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [editTarget, setEditTarget] = useState('');
-  // NEW: State to track the current saved amount during edits
   const [editCurrent, setEditCurrent] = useState('');
 
   const fetchGoals = async () => {
@@ -23,8 +58,20 @@ export default function App() {
   };
 
   useEffect(() => {
-    fetchGoals();
-  }, []);
+    // Only fetch data if the user has clicked "Launch Tracker"
+    if (isAppLaunched) {
+      fetchGoals();
+    }
+  }, [isAppLaunched]);
+
+  const totalSaved = goals.reduce((sum, goal) => sum + goal.current_amount, 0);
+  const totalGoals = goals.length;
+  const activeGoals = goals.filter(g => g.current_amount < g.target_amount).length;
+  const completedGoals = totalGoals - activeGoals;
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-KE').format(amount);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,16 +101,14 @@ export default function App() {
     setEditingId(goal.id);
     setEditName(goal.name);
     setEditTarget(goal.target_amount);
-    // NEW: Load the current saved amount into the form
     setEditCurrent(goal.current_amount);
   };
 
-  const handleUpdate = async (id) => {
+  const handleUpdate = async () => {
     try {
       await axios.put(`https://savings-tracker-backend-s8gw.onrender.com/api/goals/${id}`, {
         name: editName,
         target_amount: editTarget,
-        // NEW: Send the updated saved amount to the backend
         current_amount: editCurrent 
       });
       setEditingId(null); 
@@ -73,94 +118,180 @@ export default function App() {
     }
   };
 
+
+  // CONDITIONAL RENDERING: 
+  if (!isAppLaunched) {
+    return <LandingPage onLaunch={() => setIsAppLaunched(true)} />;
+  }
+
+  // Otherwise, render the main application.
   return (
-    <div style={{ padding: '20px', maxWidth: '500px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h2>Simple Savings Tracker</h2>
+    <div className="app-container">
       
-      <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        <input 
-          type="text" 
-          placeholder="Goal Name" 
-          value={name} 
-          onChange={(e) => setName(e.target.value)} 
-          required 
-          style={{ flex: 1, padding: '8px' }}
-        />
-        <input 
-          type="number" 
-          placeholder="Target" 
-          value={target} 
-          onChange={(e) => setTarget(e.target.value)} 
-          required 
-          style={{ width: '100px', padding: '8px' }}
-        />
-        <button type="submit" style={{ padding: '8px 16px' }}>Add Goal</button>
-      </form>
+      {/* --- NEW: BACK BUTTON NAVIGATION --- */}
+      <nav className="nav-bar">
+        <button 
+          className="btn-outline btn-back" 
+          onClick={() => setIsAppLaunched(false)}
+        >
+          ← Return to Home
+        </button>
+      </nav>
 
-      <div>
+      <header className="header">
+        <h1>Savings Portfolio</h1>
+        <br></br>
+        <p>Financial Target Tracking</p>
+      </header>
+
+      {/* --- DASHBOARD WIDGETS --- */}
+      <div className="dashboard-grid">
+        <div className="stat-card card">
+          <div className="stat-info">
+            <h3>Total Capital</h3>
+            <p>
+              <span className="currency-symbol">KES</span> 
+              {formatCurrency(totalSaved)}
+            </p>
+          </div>
+        </div>
+        <div className="stat-card card">
+          <div className="stat-info">
+            <h3>Active Targets</h3>
+            <p>{activeGoals}</p>
+          </div>
+        </div>
+        <div className="stat-card card">
+          <div className="stat-info">
+            <h3>Completed</h3>
+            <p>{completedGoals}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* --- ADD NEW GOAL FORM --- */}
+      <div className="card">
+        <form onSubmit={handleSubmit} className="form-row">
+          <div className="form-group">
+            <label>Portfolio Goal</label>
+            <input 
+              type="text" 
+              placeholder="e.g., Master's Fund" 
+              value={name} 
+              onChange={(e) => setName(e.target.value)} 
+              required 
+            />
+          </div>
+          <div className="form-group">
+            <label>Target Amount (KES)</label>
+            <input 
+              type="number" 
+              placeholder="0.00" 
+              value={target} 
+              onChange={(e) => setTarget(e.target.value)} 
+              required 
+            />
+          </div>
+          <button type="submit" className="btn-primary">Initialize Goal</button>
+        </form>
+      </div>
+
+      {/* --- GOALS LIST --- */}
+      <div className="card">
         {goals.length === 0 ? (
-          <p>No goals yet.</p>
+          <p style={{ color: 'var(--text-muted)', margin: 0, textAlign: 'center', padding: '2rem 0' }}>
+            No financial targets established.
+          </p>
         ) : (
-          goals.map(goal => (
-            <div key={goal.id} style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '10px', borderRadius: '5px' }}>
-              
-              {editingId === goal.id ? (
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label style={{ fontSize: '12px', color: '#666' }}>Goal Name</label>
-                  <input 
-                    type="text" 
-                    value={editName} 
-                    onChange={(e) => setEditName(e.target.value)} 
-                    style={{ padding: '8px', marginTop: '-5px' }}
-                  />
-                  
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ fontSize: '12px', color: '#666' }}>Amount Saved</label>
-                      <input 
-                        type="number" 
-                        value={editCurrent} 
-                        onChange={(e) => setEditCurrent(e.target.value)} 
-                        style={{ padding: '8px', width: '100%', boxSizing: 'border-box' }}
-                      />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ fontSize: '12px', color: '#666' }}>Target Amount</label>
-                      <input 
-                        type="number" 
-                        value={editTarget} 
-                        onChange={(e) => setEditTarget(e.target.value)} 
-                        style={{ padding: '8px', width: '100%', boxSizing: 'border-box' }}
-                      />
-                    </div>
-                  </div>
+          goals.map(goal => {
+            const isCompleted = goal.current_amount >= goal.target_amount;
+            const percentage = goal.target_amount > 0 
+              ? Math.min((goal.current_amount / goal.target_amount) * 100, 100).toFixed(1) 
+              : 0;
 
-                  <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
-                    <button onClick={() => handleUpdate(goal.id)} style={{ padding: '6px 12px', background: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Save</button>
-                    <button onClick={() => setEditingId(null)} style={{ padding: '6px 12px', background: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>
+            return (
+              <div key={goal.id} className="goal-item">
+                <div className="goal-header">
+                  <div className="goal-title-area">
+                    <h3>{goal.name}</h3>
+                    <span className={`badge ${isCompleted ? 'badge-done' : 'badge-active'}`}>
+                      {isCompleted ? 'Done' : 'Active'}
+                    </span>
+                  </div>
+                  <div className="goal-actions">
+                    <button onClick={() => startEditing(goal)} className="btn-outline">Edit</button>
+                    <button onClick={() => handleDelete(goal.id)} className="btn-danger">Remove</button>
                   </div>
                 </div>
-
-              ) : (
                 
-                <div>
-                  <h3 style={{ margin: '0 0 10px 0' }}>{goal.name}</h3>
-                  <p style={{ margin: '0 0 15px 0' }}>
-                    Saved: <strong>KES {goal.current_amount}</strong> / KES {goal.target_amount}
-                  </p>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button onClick={() => startEditing(goal)} style={{ padding: '6px 12px', background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Edit</button>
-                    <button onClick={() => handleDelete(goal.id)} style={{ padding: '6px 12px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
+                <p style={{ color: 'var(--text-muted)', margin: 0 }}>
+                  Secured <strong>KES {formatCurrency(goal.current_amount)}</strong> of KES {formatCurrency(goal.target_amount)}
+                </p>
+
+                <div className="progress-container">
+                  <div className="progress-bar-bg">
+                    <div 
+                      className={`progress-bar-fill ${isCompleted ? 'completed' : ''}`} 
+                      style={{ width: `${percentage}%` }}
+                    ></div>
+                  </div>
+                  <div className="progress-stats">
+                    <span><strong>{percentage}%</strong> complete</span>
+                    <span>
+                      {isCompleted 
+                        ? <strong style={{ color: 'var(--success)' }}>Target Achieved</strong> 
+                        : `${formatCurrency(goal.target_amount - goal.current_amount)} KES remaining`}
+                    </span>
                   </div>
                 </div>
-
-              )}
-              
-            </div>
-          ))
+              </div>
+            );
+          })
         )}
       </div>
+
+      {/* --- BLURRED MODAL POPUP --- */}
+      {editingId && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>Modify Target</h2>
+            </div>
+            
+            <div className="modal-form-group">
+              <label>Goal Designation</label>
+              <input 
+                type="text" 
+                value={editName} 
+                onChange={(e) => setEditName(e.target.value)} 
+              />
+            </div>
+            
+            <div className="modal-form-group">
+              <label>Secured Capital (KES)</label>
+              <input 
+                type="number" 
+                value={editCurrent} 
+                onChange={(e) => setEditCurrent(e.target.value)} 
+              />
+            </div>
+            
+            <div className="modal-form-group">
+              <label>Target Valuation (KES)</label>
+              <input 
+                type="number" 
+                value={editTarget} 
+                onChange={(e) => setEditTarget(e.target.value)} 
+              />
+            </div>
+
+            <div className="modal-actions">
+              <button onClick={() => setEditingId(null)} className="btn-outline">Discard</button>
+              <button onClick={handleUpdate} className="btn-primary">Confirm Update</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

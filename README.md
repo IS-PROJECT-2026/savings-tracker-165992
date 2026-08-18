@@ -1,6 +1,6 @@
 # Savings Tracking System
 
-A full-stack financial tracking application designed to help users organize their capital, visualize progress, and reach financial milestones. Built as a final-year academic project for Strathmore University.
+A full-stack financial tracking application designed to help users organize their capital, visualize progress, and reach financial milestones. 
 
 ## 🚀 Features
 
@@ -46,19 +46,19 @@ cd savings-tracker-165992
 ```
 
 ## API Endpoints
-GET - /api/goals, Retrieves a list of all financial targets.
-POST - /api/goals, Creates a new financial goal (requires name and target_amount).
-PUT - /api/goals/<id>, "Updates an existing goal (modifies name, target_amount, or current_amount)."
-DELETE - /api/goals/<id>, Deletes a specific goal from the database.
+* GET - /api/goals, Retrieves a list of all financial targets.
+* POST - /api/goals, Creates a new financial goal (requires name and target_amount).
+* PUT - /api/goals/<id>, "Updates an existing goal (modifies name, target_amount, or current_amount)."
+* DELETE - /api/goals/<id>, Deletes a specific goal from the database.
 
 ## Git Branching Strategy
-feat/[issue-number]-[description] - For new features (e.g., frontend setup, API endpoints).
+* feat/[issue-number]-[description] - For new features (e.g., frontend setup, API endpoints).
 
-style/[issue-number]-[description] - For UI/UX adjustments and CSS modifications.
+* style/[issue-number]-[description] - For UI/UX adjustments and CSS modifications.
 
-fix/[issue-number]-[description] - For bug resolutions (e.g., CORS policy fixes).
+* fix/[issue-number]-[description] - For bug resolutions (e.g., CORS policy fixes).
 
-docs/[issue-number]-[description] - For documentation updates.
+* docs/[issue-number]-[description] - For documentation updates.
 
 ## Author
 Ivan Muvane Musila
