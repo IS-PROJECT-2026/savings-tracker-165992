@@ -50,7 +50,7 @@ export default function App() {
 
   const fetchGoals = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:5000/api/goals');
+      const response = await axios.get('https://savings-tracker-backend-s8gw.onrender.com/api/goals');
       setGoals(response.data);
     } catch (error) {
       console.error("Error fetching goals:", error);
@@ -76,7 +76,7 @@ export default function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://127.0.0.1:5000/api/goals', {
+      await axios.post('https://savings-tracker-backend-s8gw.onrender.com/api/goals', {
         name: name,
         target_amount: target
       });
@@ -90,7 +90,7 @@ export default function App() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:5000/api/goals/${id}`);
+      await axios.delete(`https://savings-tracker-backend-s8gw.onrender.com/api/goals/${id}`);
       fetchGoals();
     } catch (error) {
       console.error("Error deleting goal:", error);
@@ -106,7 +106,7 @@ export default function App() {
 
   const handleUpdate = async () => {
     try {
-      await axios.put(`http://127.0.0.1:5000/api/goals/${editingId}`, {
+      await axios.put(`https://savings-tracker-backend-s8gw.onrender.com/api/goals/${id}`, {
         name: editName,
         target_amount: editTarget,
         current_amount: editCurrent 
