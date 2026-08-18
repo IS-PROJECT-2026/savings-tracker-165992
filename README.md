@@ -2,6 +2,8 @@
 
 A full-stack financial tracking application designed to help users organize their capital, visualize progress, and reach financial milestones. 
 
+**Live GitHub Pages URL:** https://is-project-2026.github.io/savings-tracker-165992/
+
 ## 🚀 Features
 
 *   **Persuasive Landing Page:** A seamless, distraction-free entry point that transitions instantly to the main application without requiring user authentication.
