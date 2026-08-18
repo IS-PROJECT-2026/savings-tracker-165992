@@ -30,18 +30,10 @@ export default function App() {
 
   // --- Dashboard Calculations ---
   const totalSaved = goals.reduce((sum, goal) => sum + goal.current_amount, 0);
-  const totalTarget = goals.reduce((sum, goal) => sum + goal.target_amount, 0);
   const totalGoals = goals.length;
+  // A goal is active if it hasn't reached its target
   const activeGoals = goals.filter(g => g.current_amount < g.target_amount).length;
-  
-  // Calculate percentage for the progress wheel
-  const percentageSaved = totalTarget > 0 ? ((totalSaved / totalTarget) * 100) : 0;
-  const percentageRemaining = totalTarget > 0 ? (100 - percentageSaved).toFixed(1) : 0;
-  
-  // SVG Math for the wheel
-  const wheelRadius = 26;
-  const wheelCircumference = 2 * Math.PI * wheelRadius;
-  const wheelOffset = wheelCircumference - (percentageSaved / 100) * wheelCircumference;
+  const completedGoals = totalGoals - activeGoals;
 
   // --- API Handlers ---
   const handleSubmit = async (e) => {
@@ -107,29 +99,15 @@ export default function App() {
 
         <div className="stat-card">
           <div className="stat-info">
-            <h3>Active / Total Goals</h3>
-            <p>{activeGoals} / {totalGoals}</p>
+            <h3>Active Goals</h3>
+            <p>{activeGoals}</p>
           </div>
         </div>
 
         <div className="stat-card">
           <div className="stat-info">
-            <h3>Remaining</h3>
-            <p>{percentageRemaining}%</p>
-          </div>
-          <div className="progress-wheel">
-            <svg width="60" height="60">
-              <circle className="bg" cx="30" cy="30" r={wheelRadius} />
-              <circle 
-                className="fill" 
-                cx="30" cy="30" r={wheelRadius} 
-                strokeDasharray={wheelCircumference}
-                strokeDashoffset={wheelOffset}
-              />
-            </svg>
-            <div className="progress-text">
-              {Math.round(percentageSaved)}%
-            </div>
+            <h3>Completed</h3>
+            <p>{completedGoals}</p>
           </div>
         </div>
       </div>
@@ -166,47 +144,77 @@ export default function App() {
         {goals.length === 0 ? (
           <p style={{ color: 'var(--text-muted)', margin: 0 }}>No active savings goals found.</p>
         ) : (
-          goals.map(goal => (
-            <div key={goal.id} className="goal-item">
-              
-              {editingId === goal.id ? (
-                // Edit Mode
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Goal Name</label>
-                    <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label>Amount Saved</label>
-                    <input type="number" value={editCurrent} onChange={(e) => setEditCurrent(e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label>Target</label>
-                    <input type="number" value={editTarget} onChange={(e) => setEditTarget(e.target.value)} />
-                  </div>
-                  <div className="goal-actions" style={{ marginBottom: '4px' }}>
-                    <button onClick={() => handleUpdate(goal.id)} className="btn-primary">Save</button>
-                    <button onClick={() => setEditingId(null)} className="btn-outline">Cancel</button>
-                  </div>
-                </div>
-              ) : (
-                // View Mode
-                <div>
-                  <div className="goal-header">
-                    <h3>{goal.name}</h3>
-                    <div className="goal-actions">
-                      <button onClick={() => startEditing(goal)} className="btn-outline">Edit</button>
-                      <button onClick={() => handleDelete(goal.id)} className="btn-danger">Delete</button>
+          goals.map(goal => {
+            // Logic for the progress bar and status badge
+            const isCompleted = goal.current_amount >= goal.target_amount;
+            const percentage = goal.target_amount > 0 
+              ? Math.min((goal.current_amount / goal.target_amount) * 100, 100).toFixed(1) 
+              : 0;
+
+            return (
+              <div key={goal.id} className="goal-item">
+                {editingId === goal.id ? (
+                  // Edit Mode
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Goal Name</label>
+                      <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                      <label>Amount Saved</label>
+                      <input type="number" value={editCurrent} onChange={(e) => setEditCurrent(e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                      <label>Target</label>
+                      <input type="number" value={editTarget} onChange={(e) => setEditTarget(e.target.value)} />
+                    </div>
+                    <div className="goal-actions" style={{ marginBottom: '4px' }}>
+                      <button onClick={() => handleUpdate(goal.id)} className="btn-primary">Save</button>
+                      <button onClick={() => setEditingId(null)} className="btn-outline">Cancel</button>
                     </div>
                   </div>
-                  <p style={{ color: 'var(--text-muted)', margin: 0 }}>
-                    Saved <strong>KES {goal.current_amount.toLocaleString()}</strong> of KES {goal.target_amount.toLocaleString()}
-                  </p>
-                </div>
-              )}
-              
-            </div>
-          ))
+                ) : (
+                  // View Mode
+                  <div>
+                    <div className="goal-header">
+                      <div className="goal-title-area">
+                        <h3>{goal.name}</h3>
+                        <span className={`badge ${isCompleted ? 'badge-done' : 'badge-active'}`}>
+                          {isCompleted ? 'Done' : 'Active'}
+                        </span>
+                      </div>
+                      <div className="goal-actions">
+                        <button onClick={() => startEditing(goal)} className="btn-outline">Edit</button>
+                        <button onClick={() => handleDelete(goal.id)} className="btn-danger">Delete</button>
+                      </div>
+                    </div>
+                    
+                    <p style={{ color: 'var(--text-muted)', margin: 0 }}>
+                      Saved <strong>KES {goal.current_amount.toLocaleString()}</strong> of KES {goal.target_amount.toLocaleString()}
+                    </p>
+
+                    {/* Progress Bar */}
+                    <div className="progress-container">
+                      <div className="progress-bar-bg">
+                        <div 
+                          className={`progress-bar-fill ${isCompleted ? 'completed' : ''}`} 
+                          style={{ width: `${percentage}%` }}
+                        ></div>
+                      </div>
+                      <div className="progress-stats">
+                        <span>{percentage}%</span>
+                        <span>
+                          {isCompleted 
+                            ? 'Goal Reached! 🎉' 
+                            : `${(goal.target_amount - goal.current_amount).toLocaleString()} KES remaining`}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })
         )}
       </div>
     </div>

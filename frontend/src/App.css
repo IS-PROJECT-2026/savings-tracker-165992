@@ -75,36 +75,6 @@ body {
   color: var(--text-main);
 }
 
-/* Progress Wheel */
-.progress-wheel {
-  position: relative;
-  width: 60px;
-  height: 60px;
-}
-
-.progress-wheel svg {
-  transform: rotate(-90deg);
-}
-
-.progress-wheel circle {
-  fill: none;
-  stroke-width: 8;
-  stroke-linecap: round;
-}
-
-.progress-wheel .bg { stroke: var(--border); }
-.progress-wheel .fill { stroke: var(--primary); transition: stroke-dashoffset 0.5s ease; }
-
-.progress-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--primary);
-}
-
 /* Forms and Cards */
 .card {
   background: var(--bg-card);
@@ -141,6 +111,7 @@ input {
   font-size: 1rem;
   outline: none;
   transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 
 input:focus { border-color: var(--primary); }
@@ -182,5 +153,61 @@ button {
   margin-bottom: 1rem;
 }
 
+.goal-title-area {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .goal-header h3 { margin: 0; font-size: 1.25rem; }
 .goal-actions { display: flex; gap: 0.5rem; }
+
+/* Status Badges */
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.badge-active {
+  background-color: #dbeafe;
+  color: #1e3a8a;
+}
+
+.badge-done {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+/* Linear Progress Bar */
+.progress-container {
+  margin-top: 1rem;
+}
+
+.progress-bar-bg {
+  background-color: var(--border);
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar-fill {
+  background-color: var(--primary);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.progress-bar-fill.completed {
+  background-color: var(--success);
+}
+
+.progress-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
