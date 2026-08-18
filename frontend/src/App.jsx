@@ -2,10 +2,43 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
+// --- LANDING PAGE COMPONENT ---
+const LandingPage = ({ onLaunch }) => (
+  <div className="landing-container">
+    <div className="hero-section">
+      <h1 className="hero-title">Master Your Finances.<br/>Achieve Your Goals.</h1>
+      <p className="hero-subtitle">
+        A beautifully simple, distraction-free savings tracker designed to help you organize your capital and reach your financial milestones faster.
+      </p>
+      <button onClick={onLaunch} className="btn-primary btn-large">
+        Launch Tracker
+      </button>
+    </div>
+    
+    <div className="features-grid">
+      <div className="feature-card">
+        <h3>Visual Tracking</h3>
+        <p>Watch your progress grow with intuitive, real-time progress bars and automated goal-completion badges.</p>
+      </div>
+      <div className="feature-card">
+        <h3>Clean Dashboard</h3>
+        <p>Get an instant, bird's-eye view of your total capital, active targets, and completed milestones.</p>
+      </div>
+      <div className="feature-card">
+        <h3>Frictionless</h3>
+        <p>No tedious sign-ups or onboarding required. Click launch and start optimizing your portfolio immediately.</p>
+      </div>
+    </div>
+  </div>
+);
+
+// --- MAIN TRACKER COMPONENT ---
 export default function App() {
+  // Navigation State
+  const [isAppLaunched, setIsAppLaunched] = useState(false);
+
+  // App Data State
   const [goals, setGoals] = useState([]);
-  
-  // New Goal State
   const [name, setName] = useState('');
   const [target, setTarget] = useState('');
 
@@ -25,21 +58,21 @@ export default function App() {
   };
 
   useEffect(() => {
-    fetchGoals();
-  }, []);
+    // Only fetch data if the user has clicked "Launch Tracker"
+    if (isAppLaunched) {
+      fetchGoals();
+    }
+  }, [isAppLaunched]);
 
-  // --- Dashboard Calculations ---
   const totalSaved = goals.reduce((sum, goal) => sum + goal.current_amount, 0);
   const totalGoals = goals.length;
   const activeGoals = goals.filter(g => g.current_amount < g.target_amount).length;
   const completedGoals = totalGoals - activeGoals;
 
-  // --- Formatter for Currency ---
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-KE').format(amount);
   };
 
-  // --- API Handlers ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -85,8 +118,26 @@ export default function App() {
     }
   };
 
+
+  // CONDITIONAL RENDERING: 
+  if (!isAppLaunched) {
+    return <LandingPage onLaunch={() => setIsAppLaunched(true)} />;
+  }
+
+  // Otherwise, render the main application.
   return (
     <div className="app-container">
+      
+      {/* --- NEW: BACK BUTTON NAVIGATION --- */}
+      <nav className="nav-bar">
+        <button 
+          className="btn-outline btn-back" 
+          onClick={() => setIsAppLaunched(false)}
+        >
+          ← Return to Home
+        </button>
+      </nav>
+
       <header className="header">
         <h1>Savings Portfolio</h1>
         <br></br>
@@ -99,7 +150,6 @@ export default function App() {
           <div className="stat-info">
             <h3>Total Capital</h3>
             <p>
-              {/* This span keeps the symbol small, inline, and prevents line breaks */}
               <span className="currency-symbol">KES</span> 
               {formatCurrency(totalSaved)}
             </p>
@@ -178,7 +228,6 @@ export default function App() {
                   Secured <strong>KES {formatCurrency(goal.current_amount)}</strong> of KES {formatCurrency(goal.target_amount)}
                 </p>
 
-                {/* Progress Bar */}
                 <div className="progress-container">
                   <div className="progress-bar-bg">
                     <div 
