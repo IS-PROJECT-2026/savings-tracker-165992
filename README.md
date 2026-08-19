@@ -4,7 +4,7 @@ A full-stack financial tracking application designed to help users organize thei
 
 **Live GitHub Pages URL:** https://is-project-2026.github.io/savings-tracker-165992/
 
-## 🚀 Features
+## Features
 
 *   **Persuasive Landing Page:** A seamless, distraction-free entry point that transitions instantly to the main application without requiring user authentication.
 *   **Dynamic Dashboard:** Real-time metrics calculating Total Capital, Active Targets, and Completed Goals.
@@ -16,7 +16,7 @@ A full-stack financial tracking application designed to help users organize thei
     *   Delete obsolete or mistaken goals.
 *   **Visual Progress Tracking:** Individual linear progress bars that automatically calculate completion percentages and toggle "Active" or "Done" status badges.
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 **Frontend**
 *   React.js (scaffolded with Vite)
@@ -29,7 +29,7 @@ A full-stack financial tracking application designed to help users organize thei
 *   Flask-CORS (Cross-Origin Resource Sharing)
 *   SQLite (Lightweight relational database)
 
-## 📋 Prerequisites
+## Prerequisites
 
 Ensure you have the following installed on your local development environment (instructions assume a WSL Ubuntu / Linux environment):
 
@@ -37,7 +37,7 @@ Ensure you have the following installed on your local development environment (i
 *   **Node.js** (installed via NVM) and **npm**
 *   **Git**
 
-## ⚙️ Local Setup & Installation
+## Local Setup & Installation
 
 This project requires running two separate servers simultaneously. Open your terminal and follow these steps:
 
